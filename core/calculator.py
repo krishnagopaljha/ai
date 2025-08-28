@@ -1,29 +1,17 @@
 # core/calculator.py
+from typing import Literal
 
-import sys
-from asteval import Interpreter
+Op = Literal["+", "-", "*", "/"]
 
-def safe_calculate(expression: str):
-    """
-    Safely evaluates a mathematical expression using asteval.
-    """
-    # Create a safe interpreter instance
-    aeval = Interpreter()
-    
-    try:
-        # Evaluate the expression
-        result = aeval.eval(expression)
-        return result
-    except Exception as e:
-        # Return an error message if evaluation fails
-        return f"Error: Could not evaluate '{expression}'. Details: {e}"
-
-if __name__ == "__main__":
-    # Ensure that exactly one argument (the expression) is provided
-    if len(sys.argv) != 2:
-        print("Usage: python calculator.py \"<mathematical_expression>\"")
-        sys.exit(1)
-        
-    input_expression = sys.argv[1]
-    output = safe_calculate(input_expression)
-    print(output)
+def calculate(a: float, op: Op, b: float) -> float:
+    if op == "+":
+        return a + b
+    if op == "-":
+        return a - b
+    if op == "*":
+        return a * b
+    if op == "/":
+        if b == 0:
+            raise ZeroDivisionError("Cannot divide by zero")
+        return a / b
+    raise ValueError(f"Unsupported operator: {op}")
