@@ -4,6 +4,7 @@ import requests
 from core.calculator import calculate
 from core.parser import parse_chat_math_local
 from core.llm_parser import parse_chat_math_llm
+from core.directory_bruteforcer import extract_target, bruteforce_directories
 
 OLLAMA_URL = "http://localhost:11434/api/chat"
 MODEL_NAME = "phi3:mini"
@@ -49,6 +50,17 @@ def handle_message(user_msg: str) -> str:
                 return f"Error: {e}"
         else:
             return "❌ Sorry, I couldn’t understand the math expression."
+    elif user_msg.lower().startswith("!word"):
+        target = extract_target(user_msg)
+        if not target:
+            return "❌ Could not find a valid URL or IP address in your request."
+        
+        found = bruteforce_directories(target)
+        
+        if found:
+            return f"✅ Found accessible paths:\n" + "\n".join(found)
+        else:
+            return f"ℹ️ No common directories found for {target}."
     else:
         return chat_with_phi3(user_msg)
 
@@ -58,10 +70,10 @@ if __name__ == "__main__":
     try:
         while True:
             user_input = input("> ")
-            if user_input.lower().startswith("!chat"):
+            if user_input.lower().startswith(("!chat", "!word")):
                 reply = handle_message(user_input)
                 print(reply)
             else:
-                handle_message(user_input)  # will stream words
+                chat_with_phi3(user_input)  # Stream reply directly
     except KeyboardInterrupt:
         print("\n👋 Exiting chat.")
